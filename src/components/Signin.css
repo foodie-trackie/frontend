@@ -1,0 +1,17 @@
+.add-item-container {
+  text-align: center;
+}
+
+.add-item {
+  width: 500px;
+  display: inline-block;
+  text-align: left;
+}
+
+.valid {
+  color: white;
+}
+
+.invalid {
+  color: red;
+}
