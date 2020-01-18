@@ -4,7 +4,12 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import "./Signin.css";
+import axios from "axios";
+import Cookies from "js-cookie";
 // import { connect } from "react-redux";
+
+axios.defaults.xsrfCookieName = "csrftoken";
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class Signin extends React.Component {
   constructor(props) {
@@ -18,14 +23,25 @@ class Signin extends React.Component {
   }
 
   handleSubmit = () => {
-    console.log(this.state);
+    const csrftoken = Cookies.get("csrftoken"); // Using JS Cookies library
+    const headers = { X_CSRFTOKEN: csrftoken };
+    console.log(headers);
+    axios.post(
+      "api/signup/",
+      {
+        username: this.state.name,
+        email: this.state.email,
+        password: this.state.password
+      },
+      { headers }
+    );
   };
 
   render() {
     return (
       <div className="add-item-container">
         <div className="add-item">
-          <Form onSubmit={this.handleSubmit}>
+          <Form>
             <Form.Group as={Row} controlId="formBasicName">
               <Form.Label column sm="4">
                 User Name
@@ -107,7 +123,11 @@ class Signin extends React.Component {
             this.state.email &&
             this.state.password &&
             this.state.password === this.state.confirmPassword ? (
-              <Button variant="primary" type="submit">
+              <Button
+                variant="primary"
+                type="button"
+                onClick={this.handleSubmit}
+              >
                 Sign In
               </Button>
             ) : (
