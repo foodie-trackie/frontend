@@ -39,8 +39,8 @@ class Signin extends React.Component {
 
   render() {
     return (
-      <div className="add-item-container">
-        <div className="add-item">
+      <div className="sign-in-container">
+        <div className="sign-in">
           <Form>
             <Form.Group as={Row} controlId="formBasicName">
               <Form.Label column sm="4">
