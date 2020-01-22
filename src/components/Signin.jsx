@@ -36,10 +36,7 @@ class Signin extends React.Component {
     const csrftoken = Cookies.get("csrftoken"); // Using JS Cookies library
     const headers = {
       X_CSRFTOKEN: csrftoken
-      // "Content-Type": "application/x-www-form-urlencoded"
-      // "Content-Type": "application/json"
     };
-    console.log(headers);
     axios
       .post(
         "api/signup/",
@@ -59,8 +56,6 @@ class Signin extends React.Component {
         const errors = _.flatten(Object.values(error.response.data)).map(
           item => item.message
         );
-
-        console.log(errors);
         this.setState({
           failed: true,
           errors

@@ -4,38 +4,72 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import "./Signin.css";
+import axios from "axios";
+import Cookies from "js-cookie";
 // import { connect } from "react-redux";
+
+axios.defaults.xsrfCookieName = "csrftoken";
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: "",
+      username: "",
       password: ""
     };
   }
 
+  // componentDidMount() {
+  //   const csrftoken = Cookies.get("csrftoken"); // Using JS Cookies library
+  //   const headers = {
+  //     X_CSRFTOKEN: csrftoken
+  //   };
+  //   axios.get("api/items/1", null, { headers }).then(response => {
+  //     console.log(response);
+  //   });
+  // }
+
   handleSubmit = () => {
-    console.log(this.state);
+    const csrftoken = Cookies.get("csrftoken"); // Using JS Cookies library
+    const headers = {
+      X_CSRFTOKEN: csrftoken
+    };
+    console.log(headers);
+    axios
+      .post(
+        "api/login/",
+        {
+          username: this.state.username.replace(" ", "_"),
+          password: this.state.password
+        },
+        { headers }
+      )
+      .then(response => {
+        console.log(response);
+      })
+      .catch(error => {
+        console.log(error.response.data);
+      });
   };
 
   render() {
     return (
       <div className="add-item-container">
         <div className="add-item">
-          <Form onSubmit={this.handleSubmit}>
+          <Form>
             <Form.Group as={Row} controlId="formBasicEmail">
               <Form.Label column sm="4">
-                Email Address
+                User Name
               </Form.Label>
               <Col sm="8">
                 <Form.Control
-                  type="email"
-                  placeholder="Enter emial"
-                  name="email"
-                  value={this.state.email}
+                  type="text"
+                  placeholder="Enter your user name"
+                  name="username"
+                  value={this.state.username}
                   onChange={e => {
-                    this.setState({ email: e.currentTarget.value });
+                    this.setState({ username: e.currentTarget.value });
                   }}
                   required
                 />
@@ -58,8 +92,12 @@ class Login extends React.Component {
                 />
               </Col>
             </Form.Group>
-            {this.state.email && this.state.password ? (
-              <Button variant="primary" type="submit">
+            {this.state.username && this.state.password ? (
+              <Button
+                variant="primary"
+                type="button"
+                onClick={this.handleSubmit}
+              >
                 Log In
               </Button>
             ) : (
