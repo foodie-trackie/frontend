@@ -1,12 +1,14 @@
 import React from "react";
 import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import "./Signin.css";
 import axios from "axios";
 import Cookies from "js-cookie";
-// import { connect } from "react-redux";
+import { connect } from "react-redux";
+import { setItems, login } from "../redux/actions";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -16,7 +18,9 @@ class Login extends React.Component {
     super(props);
     this.state = {
       username: "",
-      password: ""
+      password: "",
+      failed: false,
+      error: ""
     };
   }
 
@@ -25,10 +29,13 @@ class Login extends React.Component {
   //   const headers = {
   //     X_CSRFTOKEN: csrftoken
   //   };
-  //   axios.get("api/items/1", null, { headers }).then(response => {
-  //     console.log(response);
-  //   });
+  // axios.get("api/items/1", null, { headers }).then(response => {
+  //   console.log(response);
+  // });
   // }
+  handleClose = () => {
+    this.setState({ failed: false });
+  };
 
   handleSubmit = () => {
     const csrftoken = Cookies.get("csrftoken"); // Using JS Cookies library
@@ -46,10 +53,23 @@ class Login extends React.Component {
         { headers }
       )
       .then(response => {
-        console.log(response);
+        const user = response.data;
+        console.log(user);
+        this.props.login(user);
+        const id = user.id;
+        return axios.get(`api/items/${id}`, null, { headers });
+      })
+      .then(response => {
+        const items = response.data;
+        console.log(response.data);
+        this.props.setItems(items);
       })
       .catch(error => {
-        console.log(error.response.data);
+        console.log(error.response);
+        this.setState({
+          failed: true,
+          error: "Your username or password is incorrect."
+        });
       });
   };
 
@@ -104,10 +124,24 @@ class Login extends React.Component {
               <Button variant="secondary">Log In</Button>
             )}
           </Form>
+          <Modal show={this.state.failed} onHide={this.handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>Login Failed</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{this.state.error}</Modal.Body>
+            <Modal.Footer>
+              <Button onClick={this.handleClose}>Close</Button>
+            </Modal.Footer>
+          </Modal>
         </div>
       </div>
     );
   }
 }
 
-export default Login;
+const mapDispatchToProps = dispatch => ({
+  login: user => dispatch(login(user)),
+  setItems: items => dispatch(setItems(items))
+});
+
+export default connect(null, mapDispatchToProps)(Login);
