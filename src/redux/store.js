@@ -9,14 +9,22 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case "SET_ITEMS": {
-      console.log(action);
       return {
         ...state,
         items: action.payload
+          .map(item => ({
+            id: item.id,
+            name: item.name,
+            number: item.number,
+            productionDate: item.production_date,
+            shelfLife: item.shelf_life,
+            expirationDate: item.expiration_date,
+            owner: item.owner
+          }))
+          .sort((a, b) => Date(a.shelfLife) - Date(b.shelfLife))
       };
     }
     case "LOGIN": {
-      console.log(action);
       return {
         ...state,
         loggedIn: true,
