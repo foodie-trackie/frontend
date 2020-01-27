@@ -57,7 +57,7 @@ class Login extends React.Component {
         console.log(user);
         this.props.login(user);
         const id = user.id;
-        return axios.get(`api/items/${id}`, null, { headers });
+        return axios.get(`api/users/${id}/items/`, null, { headers });
       })
       .then(response => {
         const items = response.data;
