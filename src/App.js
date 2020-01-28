@@ -3,6 +3,7 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import LoggedInView from "./components/LoggedInView";
 import LoggedOutView from "./components/LoggedOutView";
+import { BrowserRouter } from "react-router-dom";
 import { connect } from "react-redux";
 
 function App(props) {
@@ -10,7 +11,15 @@ function App(props) {
     <div className="App">
       {/* <Signin /> */}
 
-      {props.loggedIn ? <LoggedInView /> : <LoggedOutView />}
+      {props.loggedIn ? (
+        <BrowserRouter>
+          <LoggedInView />
+        </BrowserRouter>
+      ) : (
+        <BrowserRouter>
+          <LoggedOutView />
+        </BrowserRouter>
+      )}
     </div>
   );
 }

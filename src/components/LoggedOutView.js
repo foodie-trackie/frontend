@@ -3,8 +3,10 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
-// import Signin from "./Signin";
+import Signin from "./Signin";
 import Login from "./Login";
+import { Route, Switch } from "react-router-dom";
+import { LinkContainer } from "react-router-bootstrap";
 
 function LoggedOutView() {
   return (
@@ -16,14 +18,21 @@ function LoggedOutView() {
             <Nav.Link>About</Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link>Log in</Nav.Link>
+            <LinkContainer to="/login">
+              <Nav.Link>Log in</Nav.Link>
+            </LinkContainer>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link>Sign in</Nav.Link>
+            <LinkContainer to="signin">
+              <Nav.Link>Sign in</Nav.Link>
+            </LinkContainer>
           </Nav.Item>
         </Nav>
       </Navbar>
-      <Login />
+      <Switch>
+        <Route path="/login" component={Login} />
+        <Route path="/signin" component={Signin} />
+      </Switch>
     </div>
   );
 }
