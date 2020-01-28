@@ -1,17 +1,16 @@
 import React from "react";
 // import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-// import Signin from "./components/Signin";
-// import AddItem from "./components/AddItem";
-import ItemList from "./components/ItemList";
-import Login from "./components/Login";
+import LoggedInView from "./components/LoggedInView";
+import LoggedOutView from "./components/LoggedOutView";
 import { connect } from "react-redux";
 
 function App(props) {
   return (
     <div className="App">
       {/* <Signin /> */}
-      {props.loggedIn ? <ItemList /> : <Login />}
+
+      {props.loggedIn ? <LoggedInView /> : <LoggedOutView />}
     </div>
   );
 }
