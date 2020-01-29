@@ -9,8 +9,13 @@ import Cookies from "js-cookie";
 import { connect } from "react-redux";
 import moment from "moment";
 import { setItems } from "../redux/actions";
+import "./ItemList.css";
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
+const csrftoken = Cookies.get("csrftoken"); // Using JS Cookies library
+const headers = {
+  X_CSRFTOKEN: csrftoken
+};
 
 class ItemList extends React.Component {
   constructor(props) {
@@ -26,10 +31,6 @@ class ItemList extends React.Component {
     });
   };
   handleDeduct = id => {
-    const csrftoken = Cookies.get("csrftoken"); // Using JS Cookies library
-    const headers = {
-      X_CSRFTOKEN: csrftoken
-    };
     const item = this.props.items.filter(item => item.id === id)[0];
     if (this.state.minusNum[id] === 0) console.log(0);
     else if (this.state.minusNum[id] < item.number) {
@@ -47,115 +48,151 @@ class ItemList extends React.Component {
       axios
         .put(`api/items/${id}`, data, { headers })
         .then(() => {
-          return axios.get(`api/users/${item.owner}/items/`, null, { headers });
-        })
-        .then(response => {
-          const items = response.data;
-          console.log(response.data);
-          this.props.setItems(items);
+          this.props.setItems(item.owner);
         })
         .catch(error => {
-          console.log(error.response);
+          console.log(error);
+        });
+    } else {
+      axios
+        .delete(`api/items/${id}`, null, { headers })
+        .then(() => {
+          this.props.setItems(item.owner);
+        })
+        .catch(error => {
+          console.log(error);
         });
     }
+  };
+  handleDelete = id => {
+    const item = this.props.items.filter(item => item.id === id)[0];
+    axios
+      .delete(`api/items/${id}`, null, { headers })
+      .then(() => {
+        this.props.setItems(item.owner);
+      })
+      .catch(error => {
+        console.log(error);
+      });
   };
   render() {
     const displayedItems = this.props.items.filter(
       item => dateToDuration(item.expirationDate) <= Number(this.state.limit)
     );
     return (
-      <div className="item-list">
-        <Form>
-          <Form.Group controlId={1}>
-            <Form.Label>What items do you want to display?</Form.Label>
-            <Form.Control
-              as="select"
-              value={this.state.limit}
-              onChange={this.handleChange}
-            >
-              <option value={Number.POSITIVE_INFINITY}>All items</option>
-              <option value={0}>Items that are expiring today</option>
-              <option value={1}>Items that are expiring tomorrow</option>
-              <option value={3}>Items that are expiring in three days</option>
-              <option value={7}>Items that are expiring in a week</option>
-              <option value={30}>Items that are expiring in a month</option>
-              <option value={365}>Items that are expiring in a year</option>
-            </Form.Control>
-          </Form.Group>
-        </Form>
-        {displayedItems.length ? (
-          displayedItems.map((item, key) => (
-            <div key={key}>
-              <br />
-              <Card
-                bg={dateToColor(item.expirationDate)}
-                style={{ width: 300 }}
+      <div className="item-list-container">
+        <div className="item-list">
+          <Form>
+            <Form.Group controlId={1}>
+              <Form.Label>What items do you want to display?</Form.Label>
+              <Form.Control
+                as="select"
+                value={this.state.limit}
+                onChange={this.handleChange}
               >
-                <Card.Header>
-                  Expires {moment(item.expirationDate).fromNow()}{" "}
-                </Card.Header>
-                <Card.Body>
-                  <Card.Title>{item.name}</Card.Title>
-                  <Card.Text>{item.number} left</Card.Text>
-                  <Form>
-                    <Form.Group as={Row} controlId="formBasicNumber">
-                      <Form.Label column>Just ate</Form.Label>
-                      <Col>
-                        <Form.Control
-                          type="number"
-                          name="number"
-                          max={item.number}
-                          min={0}
-                          value={this.state.minusNum[item.id]}
-                          onChange={e => {
-                            const newMinusNum = this.state.minusNum;
-                            const newValue = Number(e.currentTarget.value);
+                <option value={Number.POSITIVE_INFINITY}>All items</option>
+                <option value={0}>Items that are expiring today</option>
+                <option value={1}>Items that are expiring tomorrow</option>
+                <option value={3}>Items that are expiring in three days</option>
+                <option value={7}>Items that are expiring in a week</option>
+                <option value={30}>Items that are expiring in a month</option>
+                <option value={365}>Items that are expiring in a year</option>
+              </Form.Control>
+            </Form.Group>
+          </Form>
+          {displayedItems.length ? (
+            displayedItems.map((item, key) => (
+              <div key={key}>
+                <br />
+                <Card
+                  bg={dateToColor(item.expirationDate)}
+                  style={{ width: 300 }}
+                >
+                  <Card.Header>
+                    Expires {moment(item.expirationDate).fromNow()}{" "}
+                  </Card.Header>
+                  <Card.Body>
+                    <Card.Title>{item.name}</Card.Title>
+                    <Card.Text>{item.number} left</Card.Text>
+                    <Form>
+                      <Form.Group as={Row} controlId="formBasicNumber">
+                        <Form.Label column>Just ate</Form.Label>
+                        <Col>
+                          <Form.Control
+                            type="number"
+                            name="number"
+                            max={item.number}
+                            min={0}
+                            value={this.state.minusNum[item.id]}
+                            onChange={e => {
+                              const newMinusNum = this.state.minusNum;
+                              const newValue = Number(e.currentTarget.value);
 
-                            newMinusNum[item.id] = newValue;
+                              newMinusNum[item.id] = newValue;
 
-                            this.setState({
-                              minusNum: newMinusNum
-                            });
-                            console.log(this.state.minusNum);
-                          }}
-                          required
-                        />
-                      </Col>
-                      <Col>
-                        <Button
-                          onClick={() => {
-                            this.handleDeduct(item.id);
-                            const newMinusNum = this.state.minusNum;
-                            newMinusNum[item.id] = 0;
-                            this.setState({
-                              minusNum: newMinusNum
-                            });
-                          }}
-                        >
-                          Deduct
-                        </Button>
-                      </Col>
-                    </Form.Group>
-                  </Form>
-                </Card.Body>
-              </Card>
-              <br />
-            </div>
-          ))
-        ) : (
-          <div>There is no such item.</div>
-        )}
+                              this.setState({
+                                minusNum: newMinusNum
+                              });
+                              console.log(this.state.minusNum);
+                            }}
+                            required
+                          />
+                        </Col>
+                        <Col>
+                          <Button
+                            onClick={() => {
+                              this.handleDeduct(item.id);
+                              const newMinusNum = this.state.minusNum;
+                              newMinusNum[item.id] = 0;
+                              this.setState({
+                                minusNum: newMinusNum
+                              });
+                            }}
+                          >
+                            Deduct
+                          </Button>
+                        </Col>
+                      </Form.Group>
+                      <Button
+                        onClick={() => {
+                          this.handleDelete(item.id);
+                        }}
+                      >
+                        Finished All
+                      </Button>
+                    </Form>
+                  </Card.Body>
+                </Card>
+                <br />
+              </div>
+            ))
+          ) : (
+            <div>There is no such item.</div>
+          )}
+        </div>
       </div>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  items: state.items
+  items: state.items,
+  user: state.user
 });
 
 const mapDispatchToProps = dispatch => ({
-  setItems: items => dispatch(setItems(items))
+  setItems: async owner => {
+    try {
+      const response = await axios.get(`api/users/${owner}/items/`, null, {
+        headers
+      });
+      const items = response.data;
+      console.log(response.data);
+      dispatch(setItems(items));
+    } catch (error) {
+      console.log(error);
+    }
+  }
 });
 
 const dateToDuration = date =>

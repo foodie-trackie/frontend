@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import moment from "moment";
+import "./AddItem.css";
 
 const shelfLifeDays = (shelfLife, unit) => {
   if (unit === "day(s)") return shelfLife;

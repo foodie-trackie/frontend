@@ -9,6 +9,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { connect } from "react-redux";
 import { setItems, login } from "../redux/actions";
+import "./Login.css";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -75,8 +76,8 @@ class Login extends React.Component {
 
   render() {
     return (
-      <div className="add-item-container">
-        <div className="add-item">
+      <div className="login-container">
+        <div className="login">
           <Form>
             <Form.Group as={Row} controlId="formBasicEmail">
               <Form.Label column sm="4">
