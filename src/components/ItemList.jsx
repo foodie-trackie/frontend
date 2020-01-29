@@ -76,9 +76,14 @@ class ItemList extends React.Component {
       });
   };
   render() {
-    const displayedItems = this.props.items.filter(
-      item => dateToDuration(item.expirationDate) <= Number(this.state.limit)
-    );
+    const displayedItems = this.props.items
+      .filter(
+        item => dateToDuration(item.expirationDate) <= Number(this.state.limit)
+      )
+      .sort(
+        (a, b) =>
+          dateToDuration(a.expirationDate) - dateToDuration(b.expirationDate)
+      );
     return (
       <div className="item-list-container">
         <div className="item-list">

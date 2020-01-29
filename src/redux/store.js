@@ -11,17 +11,15 @@ const reducer = (state = initialState, action) => {
     case "SET_ITEMS": {
       return {
         ...state,
-        items: action.payload
-          .map(item => ({
-            id: item.id,
-            name: item.name,
-            number: item.number,
-            productionDate: item.production_date,
-            shelfLife: item.shelf_life,
-            expirationDate: item.expiration_date,
-            owner: item.owner
-          }))
-          .sort((a, b) => Date(a.shelfLife) - Date(b.shelfLife))
+        items: action.payload.map(item => ({
+          id: item.id,
+          name: item.name,
+          number: item.number,
+          productionDate: item.production_date,
+          shelfLife: item.shelf_life,
+          expirationDate: item.expiration_date,
+          owner: item.owner
+        }))
       };
     }
     case "LOGIN": {
@@ -29,6 +27,12 @@ const reducer = (state = initialState, action) => {
         ...state,
         loggedIn: true,
         user: action.payload
+      };
+    }
+    case "ADD_ITEM": {
+      return {
+        ...state,
+        items: [...state.items, action.payload]
       };
     }
     default: {

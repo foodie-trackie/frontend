@@ -2,10 +2,22 @@ import React from "react";
 // import { connect } from "react-redux"
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import moment from "moment";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { connect } from "react-redux";
 import "./AddItem.css";
+import { addItem } from "../redux/actions";
+
+axios.defaults.xsrfCookieName = "csrftoken";
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
+const csrftoken = Cookies.get("csrftoken"); // Using JS Cookies library
+const headers = {
+  X_CSRFTOKEN: csrftoken
+};
 
 const shelfLifeDays = (shelfLife, unit) => {
   if (unit === "day(s)") return shelfLife;
@@ -23,11 +35,45 @@ class AddItem extends React.Component {
       productionDate: "",
       shelfLife: 0,
       unit: "day(s)",
-      expirationDate: ""
+      expirationDate: "",
+      succeeded: false,
+      failed: false
     };
   }
+  handleClose = () => {
+    this.setState({
+      succeeded: false,
+      failed: false
+    });
+  };
   handleSubmit = () => {
-    console.log(this.state);
+    const data = {
+      name: this.state.name,
+      number: this.state.number,
+      production_date: this.state.productionDate,
+      shelf_life: this.state.shelfLife,
+      expiration_date: this.state.expirationDate,
+      owner: this.props.user.id
+    };
+    axios
+      .post("api/items/", data, { headers })
+      .then(response => {
+        const item = {
+          id: response.data.id,
+          name: response.data.name,
+          number: response.data.number,
+          productionDate: response.data.production_date,
+          shelfLife: response.data.shelf_life,
+          expirationDate: response.data.expiration_date,
+          owner: response.data.owner
+        };
+        this.props.addItem(item);
+        this.setState({ succeeded: true });
+      })
+      .catch(error => {
+        console.log(error);
+        this.setState({ failed: true });
+      });
   };
   render() {
     return (
@@ -202,10 +248,42 @@ class AddItem extends React.Component {
               Submit
             </Button>
           </Form>
+          <Modal show={this.state.succeeded} onHide={this.handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>Successfully Added</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              Congratulations! You have successfully added {this.state.number}{" "}
+              {this.state.name}(s) to your storage! Make sure you check foodie
+              trackie often so that your items won't go to waste!
+            </Modal.Body>
+            <Modal.Footer>
+              <Button onClick={this.handleClose}>Close</Button>
+            </Modal.Footer>
+          </Modal>
+          <Modal show={this.state.failed} onHide={this.handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>Addition Failed</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              There seem to be some errors. Please try again!
+            </Modal.Body>
+            <Modal.Footer>
+              <Button onClick={this.handleClose}>Close</Button>
+            </Modal.Footer>
+          </Modal>
         </div>
       </div>
     );
   }
 }
 
-export default AddItem;
+const mapStateToProps = state => ({
+  user: state.user
+});
+
+const mapDispatchToProps = dispatch => ({
+  addItem: item => dispatch(addItem(item))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddItem);
