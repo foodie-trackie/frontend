@@ -33,6 +33,7 @@ function LoggedInView() {
       </Navbar>
       <Switch>
         {/* <Route path="/about" component={about} /> */}
+        <Route exact path="/" component={ItemList} />
         <Route path="/add-item" component={AddItem} />
         <Route path="/item-list" component={ItemList} />
       </Switch>

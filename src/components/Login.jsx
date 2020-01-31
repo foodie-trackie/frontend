@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 import { connect } from "react-redux";
 import { setItems, login } from "../redux/actions";
 import "./Login.css";
+import { LinkContainer } from "react-router-bootstrap";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -20,8 +21,10 @@ class Login extends React.Component {
     this.state = {
       username: "",
       password: "",
+      succeeded: false,
       failed: false,
-      error: ""
+      error: "",
+      user: {}
     };
   }
 
@@ -35,7 +38,7 @@ class Login extends React.Component {
   // });
   // }
   handleClose = () => {
-    this.setState({ failed: false });
+    this.setState({ failed: false, succeeded: false });
   };
 
   handleSubmit = () => {
@@ -55,8 +58,9 @@ class Login extends React.Component {
       )
       .then(response => {
         const user = response.data;
-        console.log(user);
-        this.props.login(user);
+        this.setState({ succeeded: true, user });
+        // console.log(user);
+        // this.props.login(user);
         const id = user.id;
         return axios.get(`api/users/${id}/items/`, null, { headers });
       })
@@ -132,6 +136,24 @@ class Login extends React.Component {
             <Modal.Body>{this.state.error}</Modal.Body>
             <Modal.Footer>
               <Button onClick={this.handleClose}>Close</Button>
+            </Modal.Footer>
+          </Modal>
+          <Modal show={this.state.succeeded} onHide={this.handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>Successfully logged in</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>Welcome back!</Modal.Body>
+            <Modal.Footer>
+              <LinkContainer to="/item-list">
+                <Button
+                  onClick={() => {
+                    this.handleClose();
+                    this.props.login(this.state.user);
+                  }}
+                >
+                  Close
+                </Button>
+              </LinkContainer>
             </Modal.Footer>
           </Modal>
         </div>

@@ -23,13 +23,15 @@ function LoggedOutView() {
             </LinkContainer>
           </Nav.Item>
           <Nav.Item>
-            <LinkContainer to="signin">
+            <LinkContainer to="/signin">
               <Nav.Link>Sign in</Nav.Link>
             </LinkContainer>
           </Nav.Item>
         </Nav>
       </Navbar>
       <Switch>
+        {/* <Route path="/about" component={About} /> */}
+        <Route exact path="/" component={Login} />
         <Route path="/login" component={Login} />
         <Route path="/signin" component={Signin} />
       </Switch>

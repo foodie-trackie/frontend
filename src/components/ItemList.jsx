@@ -97,7 +97,9 @@ class ItemList extends React.Component {
               >
                 <option value={Number.POSITIVE_INFINITY}>All items</option>
                 <option value={0}>Items that are expiring today</option>
-                <option value={1}>Items that are expiring tomorrow</option>
+                <option value={1}>
+                  Items that are expiring before tomorrow
+                </option>
                 <option value={3}>Items that are expiring in three days</option>
                 <option value={7}>Items that are expiring in a week</option>
                 <option value={30}>Items that are expiring in a month</option>
