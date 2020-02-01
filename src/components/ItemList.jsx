@@ -95,6 +95,7 @@ class ItemList extends React.Component {
                 value={this.state.limit}
                 onChange={this.handleChange}
               >
+                <option value={-1}>Expired Items</option>
                 <option value={Number.POSITIVE_INFINITY}>All items</option>
                 <option value={0}>Items that are expiring today</option>
                 <option value={1}>
@@ -108,71 +109,97 @@ class ItemList extends React.Component {
             </Form.Group>
           </Form>
           {displayedItems.length ? (
-            displayedItems.map((item, key) => (
-              <div key={key}>
-                <br />
-                <Card
-                  bg={dateToColor(item.expirationDate)}
-                  style={{ width: 300 }}
-                >
-                  <Card.Header>
-                    Expires {moment(item.expirationDate).fromNow()}{" "}
-                  </Card.Header>
-                  <Card.Body>
-                    <Card.Title>{item.name}</Card.Title>
-                    <Card.Text>{item.number} left</Card.Text>
-                    <Form>
-                      <Form.Group as={Row} controlId="formBasicNumber">
-                        <Form.Label column>Just ate</Form.Label>
-                        <Col>
-                          <Form.Control
-                            type="number"
-                            name="number"
-                            max={item.number}
-                            min={0}
-                            value={this.state.minusNum[item.id]}
-                            onChange={e => {
-                              const newMinusNum = this.state.minusNum;
-                              const newValue = Number(e.currentTarget.value);
+            displayedItems.map((item, key) =>
+              dateToDuration(item.expirationDate) >= 0 ? (
+                <div key={key}>
+                  <br />
+                  <Card
+                    bg={dateToColor(item.expirationDate)}
+                    style={{ width: 300 }}
+                  >
+                    <Card.Header>
+                      Expires {moment(item.expirationDate).fromNow()}{" "}
+                    </Card.Header>
+                    <Card.Body>
+                      <Card.Title>{item.name}</Card.Title>
+                      <Card.Text>{item.number} left</Card.Text>
+                      <Form>
+                        <Form.Group as={Row} controlId="formBasicNumber">
+                          <Form.Label column>Just ate</Form.Label>
+                          <Col>
+                            <Form.Control
+                              type="number"
+                              name="number"
+                              max={item.number}
+                              min={0}
+                              value={this.state.minusNum[item.id]}
+                              onChange={e => {
+                                const newMinusNum = this.state.minusNum;
+                                const newValue = Number(e.currentTarget.value);
 
-                              newMinusNum[item.id] = newValue;
+                                newMinusNum[item.id] = newValue;
 
-                              this.setState({
-                                minusNum: newMinusNum
-                              });
-                              console.log(this.state.minusNum);
-                            }}
-                            required
-                          />
-                        </Col>
-                        <Col>
-                          <Button
-                            onClick={() => {
-                              this.handleDeduct(item.id);
-                              const newMinusNum = this.state.minusNum;
-                              newMinusNum[item.id] = 0;
-                              this.setState({
-                                minusNum: newMinusNum
-                              });
-                            }}
-                          >
-                            Deduct
-                          </Button>
-                        </Col>
-                      </Form.Group>
+                                this.setState({
+                                  minusNum: newMinusNum
+                                });
+                                console.log(this.state.minusNum);
+                              }}
+                              required
+                            />
+                          </Col>
+                          <Col>
+                            <Button
+                              onClick={() => {
+                                this.handleDeduct(item.id);
+                                const newMinusNum = this.state.minusNum;
+                                newMinusNum[item.id] = 0;
+                                this.setState({
+                                  minusNum: newMinusNum
+                                });
+                              }}
+                            >
+                              Deduct
+                            </Button>
+                          </Col>
+                        </Form.Group>
+                        <Button
+                          onClick={() => {
+                            this.handleDelete(item.id);
+                          }}
+                        >
+                          Finished All
+                        </Button>
+                      </Form>
+                    </Card.Body>
+                  </Card>
+                  <br />
+                </div>
+              ) : (
+                <div key={key}>
+                  <br />
+                  <Card
+                    bg={dateToColor(item.expirationDate)}
+                    style={{ width: 300 }}
+                    text="white"
+                  >
+                    <Card.Header>ALREADY EXPIRED!!!</Card.Header>
+                    <Card.Body>
+                      <Card.Title>{item.name}</Card.Title>
+                      <Card.Text>{item.number} left</Card.Text>
+
                       <Button
                         onClick={() => {
                           this.handleDelete(item.id);
                         }}
                       >
-                        Finished All
+                        Discarded
                       </Button>
-                    </Form>
-                  </Card.Body>
-                </Card>
-                <br />
-              </div>
-            ))
+                    </Card.Body>
+                  </Card>
+                  <br />
+                </div>
+              )
+            )
           ) : (
             <div>There is no such item.</div>
           )}
@@ -206,7 +233,8 @@ const dateToDuration = date =>
   moment.duration(moment(date).diff(moment())).days();
 
 const dateToColor = date => {
-  const duration = moment.duration(moment(date).diff(moment())).days();
+  const duration = dateToDuration(date);
+  if (duration < 0) return "dark";
   if (duration <= 3) return "danger";
   if (duration <= 7) return "warning";
   if (duration <= 30) return "primary";
