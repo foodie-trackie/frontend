@@ -12,7 +12,16 @@ function LoggedOutView() {
   return (
     <div className="logged-in-view">
       <Navbar bg="light" variant="light">
+        <Navbar.Brand>
+          <img
+            src={require("../images/logo.png")}
+            width="50"
+            height="50"
+            alt="Foodie Trackie Logo"
+          />
+        </Navbar.Brand>
         <Navbar.Brand>Foodie Trackie</Navbar.Brand>
+
         <Nav variant="tabs">
           <Nav.Item>
             <Nav.Link>About</Nav.Link>
